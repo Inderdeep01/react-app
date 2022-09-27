@@ -93,16 +93,16 @@ const Home = () => {
   </div>
   <div className="carousel-inner" >
     <div className="carousel-item active">
-      <img src="../imgs/2.jpeg" className={`d-block w-100 carl ${classes.img}`} alt="..."/>
+      <img src="../imgs/2.png" className={`d-block w-100 carl ${classes.img}`} alt="..."/>
     </div>
     <div className="carousel-item">
-      <img src="../imgs/1.jpeg" className={`d-block w-100 carl ${classes.img}`} alt="..."/>
+      <img src="../imgs/1.png" className={`d-block w-100 carl ${classes.img}`} alt="..."/>
     </div>
     <div className="carousel-item">
-      <img src="../imgs/3.jpeg" className={`d-block w-100 carl ${classes.img}`} alt="..."/>
+      <img src="../imgs/3.png" className={`d-block w-100 carl ${classes.img}`} alt="..."/>
     </div>
     <div className="carousel-item">
-      <img src="../imgs/4.jpeg" className={`d-block w-100 carl ${classes.img}`} alt="..."/>
+      <img src="../imgs/4.png" className={`d-block w-100 carl ${classes.img}`} alt="..."/>
     </div>
   </div>
   <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
