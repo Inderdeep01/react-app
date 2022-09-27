@@ -23,7 +23,7 @@ const Offers = () => {
         const classes=useStyles()
         const [offers,setOffer] = useState()
         useEffect(()=>{
-                axios.get('http://localhost:3005/offers')
+                axios.get('https://le3k314fab.execute-api.ap-south-1.amazonaws.com/default/REST_API')
                 .then((response)=>{
                         setOffer(response.data.offers)
                 })
