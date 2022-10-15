@@ -216,7 +216,7 @@ const Forex = () => {
                     className={classes.select}
                     >
                     {apiData?.map(([curr,val])=>{
-                        return <option value={[curr,val]}>{curr}</option>
+                        return <option value={[curr,val]} key={[curr]}>{curr}</option>
                       })}
                     </select>
                 </div>
@@ -244,7 +244,7 @@ const Forex = () => {
                     className={classes.select}
                     >
                     {apiData2?.map(([curr,val])=>{
-                        return <option value={[curr,val]}>{curr}</option>
+                        return <option value={[curr,val]} key={[curr]}>{curr}</option>
                       })}
                     </select>
                 </div>

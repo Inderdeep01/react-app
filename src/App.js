@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Hotel from "./pages/Hotel";
 import Error from './pages/Error';
 import Forex from "./pages/Forex";
+import Info from "./pages/Info";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route exact path='/flights' element={<Flight/>}/>
           <Route exact path='/hotels' element={<Hotel/>}/>
           <Route exact path='/forex' element={<Forex/>} />
+          <Route exact path='/info' element={<Info/>} />
           <Route exact path='/*' element={<Error/>} />
         </Routes>
       </Router>

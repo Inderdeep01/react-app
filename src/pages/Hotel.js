@@ -1,8 +1,15 @@
-import { InputAdornment, makeStyles, TextField } from '@material-ui/core'
+import { InputAdornment, makeStyles, TextField, CircularProgress} from '@material-ui/core'
+import { type } from '@testing-library/user-event/dist/type';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
+import { connect } from 'react-redux'
+import City from '../Components/City'
+import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
+import { useNavigate } from 'react-router-dom';
+
 const useStyle=makeStyles((theme)=>({
   cont:{
     width:'100%',
@@ -208,22 +215,28 @@ const useStyle=makeStyles((theme)=>({
     }
   }
 }))
-const Hotel = () => {
+const Hotel = (props) => {
+  console.log(props)
+  const history = useNavigate()
+  const tomorrow = new Date()
+  tomorrow.setDate(new Date().getDate() + 1)
+
   const [value,setvalue]=useState('local');
   const [inValue,setInValue]=useState('1 Adult');
-  // const [selectedDate, setSelectedDate] = useState(new Date());
-  const [checkIn,setCheckIn]=useState(new Date());
-  const [checkOut,setCheckOut]=useState(new Date());
-  const classes=useStyle();
-  const [adult,setAdult]=useState(1);
-  const [child,setChild]=useState(0);
-  const [show,setShow]=useState(false);
-  const [room,setRoom]=useState(1);
-  const [apiData,setApiData]=useState();
-  const [city,setCity]=useState('');
-  const [div,setDiv]=useState(false);
-  const [focus,setFocus]=useState(false);
-  const [click,setClick]=useState(false);
+  // const [selectedDate, setSelectedDate] = useState(new Date())
+  const [checkIn,setCheckIn]=useState(new Date())
+  const [checkOut,setCheckOut]=useState(tomorrow)
+  const classes=useStyle()
+  const [adult,setAdult]=useState(1)
+  const [child,setChild]=useState(0)
+  const [show,setShow]=useState(false)
+  const [room,setRoom]=useState(1)
+  const [apiData,setApiData]=useState()
+  const [city,setCity]=useState('')
+  const [div,setDiv]=useState(false)
+  const [focus,setFocus]=useState(false)
+  const [click,setClick]=useState(false)
+  const [showInfo,setShowInfo] = useState(true)
   const config={
     headers:{
       'X-RapidAPI-Key':'bca27cf18cmshd91bd3acedb0156p15cde3jsn038b84731788',
@@ -259,6 +272,51 @@ const Hotel = () => {
       setInValue(`${room} ${room>1?'Rooms':'Room'} | ${adult} ${adult>1?'Adults':'Adult'} | ${child} ${child>1?'Children':'Child'}`);
     }
   })
+  const search = (city)=>{
+    setShowInfo(false)
+    const options = {
+      method: 'GET',
+      url: 'https://hotels-com-provider.p.rapidapi.com/v1/destinations/search',
+      params: {query: city, locale: 'en_US', currency: 'INR'},
+      headers: {
+        'X-RapidAPI-Key': '712133e5a1mshb6da3581ea6ec4bp17ab9ejsn5cc66687b9d0',
+        'X-RapidAPI-Host': 'hotels-com-provider.p.rapidapi.com'
+      }
+    }
+    axios.request(options)
+    .then((response)=>{
+      console.log(response)
+      const cityGroup = response.data.suggestions.filter((s)=>{
+        return s.group === "CITY_GROUP"
+      })
+      //console.log(cityGroup);
+      const cities = cityGroup[0].entities.map((c)=>{
+        return(
+        {
+          name:c.name,
+          id:c.destinationId
+        }
+        )
+      })
+      props.newCities(cities)
+      setShowInfo(true)
+      //console.log(cities)
+
+    })
+    .catch(err=>console.log(err))
+  }
+  var info
+  showInfo?
+  
+  //history('/info')
+    info = (props.cities!==undefined)?props.cities.map(city=><City city={city} key={city.id}></City>):(<></>)
+  :info = (<>
+    <Box sx={{ width: 300,marginTop:'40%' }}>
+      <Skeleton />
+      <Skeleton animation="wave" />
+      <Skeleton animation={false} />
+    </Box>
+    </>)
   return (
     <div className={classes.cont}>
       <div className={classes.img}></div>
@@ -346,7 +404,14 @@ const Hotel = () => {
               <DatePicker
                className={classes.date}
                selected={checkIn}
-               onChange={(date)=>{setCheckIn(date)}}
+               onChange={(date)=>{setCheckIn(date)
+                if(date>checkOut){
+                  const t = new Date(date)
+                  t.setDate(t.getDate() + 1)
+                  setCheckOut(t)
+                }
+              }
+              }
                dateFormat='dd/MM/yyyy'
                minDate={new Date()}
                />
@@ -370,9 +435,14 @@ const Hotel = () => {
                <DatePicker
                className={classes.date}
                selected={checkOut}
-               onChange={(date)=>{setCheckOut(date)}}
+               onChange={(date)=>{
+                if(date>checkIn)
+                setCheckOut(date)
+                else
+                alert('Please choose a date other than check in')
+              }}
                dateFormat='dd/MM/yyyy'
-               minDate={new Date()}
+               minDate={checkIn}
                />
             </fieldset>
             </div>
@@ -435,7 +505,7 @@ const Hotel = () => {
                     {room}
                   </div>
                   <div 
-                  className={(room!=1)?classes.adult_minus:classes.adult_minus_disabled}
+                  className={(room!==1)?classes.adult_minus:classes.adult_minus_disabled}
                   style={{
                       width:'40px',
                       height:'30px',
@@ -444,7 +514,7 @@ const Hotel = () => {
                       display:'flex',
                       alignItems:'center',
                       justifyContent:'center'
-                    }} onClick={()=>{if(room!=1){setRoom(room-1)}}}><i className="fa-solid fa-minus"></i>
+                    }} onClick={()=>{if(room!==1){setRoom(room-1)}}}><i className="fa-solid fa-minus"></i>
                     </div>
                   </div>
                 </div>
@@ -478,7 +548,7 @@ const Hotel = () => {
                     {adult}
                   </div>
                   <div 
-                  className={(adult!=1)?classes.adult_minus:classes.adult_minus_disabled}
+                  className={(adult!==1)?classes.adult_minus:classes.adult_minus_disabled}
                   style={{
                       width:'40px',
                       height:'30px',
@@ -487,7 +557,7 @@ const Hotel = () => {
                       display:'flex',
                       alignItems:'center',
                       justifyContent:'center'
-                    }} onClick={()=>{if(adult!=1){setAdult(adult-1)}}}><i className="fa-solid fa-minus"></i>
+                    }} onClick={()=>{if(adult!==1){setAdult(adult-1)}}}><i className="fa-solid fa-minus"></i>
                     </div>
                   </div>
                   
@@ -522,7 +592,7 @@ const Hotel = () => {
                     {child}
                   </div>
                   <div 
-                  className={(child!=0)?classes.adult_minus:classes.adult_minus_disabled}
+                  className={(child!==0)?classes.adult_minus:classes.adult_minus_disabled}
                   style={{
                       width:'40px',
                       height:'30px',
@@ -531,7 +601,7 @@ const Hotel = () => {
                       display:'flex',
                       alignItems:'center',
                       justifyContent:'center'
-                    }} onClick={()=>{if(child!=0){setChild(child-1)}}}><i className="fa-solid fa-minus"></i>
+                    }} onClick={()=>{if(child!==0){setChild(child-1)}}}><i className="fa-solid fa-minus"></i>
                     </div>
                   </div>
                   
@@ -556,10 +626,27 @@ const Hotel = () => {
             </div>
           </div>
         </div>
-        <a className={classes.btn}>SEARCH HOTELS</a>
+        <a onClick={()=>{search(city)}} className={classes.btn}>SEARCH HOTELS</a>
+      </div>
+      <div className="info">
+      {info}
       </div>
     </div>
   )
 }
 
-export default Hotel
+function mapStateToProps(state){
+  return({
+    hotels:state.hotelReducer.hotels,
+    cities:state.hotelReducer.cities
+  })
+}
+
+function mapDispatchToProps(dispatch){
+  return({
+    newHotels:(hotels)=>dispatch({type:'newHotels',payload:hotels}),
+    newCities:(cities)=>dispatch({type:'newCities',payload:cities})
+  })
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(Hotel)
